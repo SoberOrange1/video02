@@ -1,0 +1,27 @@
+.video-player {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.video-player video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.video-player .progress-bar {
+  width: 100%;
+  margin: 10px 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.video-player .controls {
+  width: 100%;
+  margin: 10px 0;
+  padding: 0;
+  box-sizing: border-box;
+}
