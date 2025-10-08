@@ -1,74 +1,53 @@
-import React, { useState, useRef, useEffect } from 'react';
-import Controls from './Controls';
-import ProgressBar from './ProgressBar';
-import './VideoPlayer.css';
+import React, { useRef, useEffect, useState } from 'react';
 
 const VideoPlayer = ({ src }) => {
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [currentTime, setCurrentTime] = useState(0);
-    const [duration, setDuration] = useState(0);
     const videoRef = useRef(null);
-
-    const togglePlayPause = () => {
-        if (videoRef.current) {
-            if (isPlaying) {
-                videoRef.current.pause();
-            } else {
-                videoRef.current.play();
-            }
-            setIsPlaying(!isPlaying);
-        }
-    };
-
-    const handleTimeUpdate = () => {
-        if (videoRef.current) {
-            setCurrentTime(videoRef.current.currentTime);
-        }
-    };
-
-    const handleLoadedMetadata = () => {
-        if (videoRef.current) {
-            setDuration(videoRef.current.duration);
-        }
-    };
-
-    const handleSeek = (time) => {
-        if (videoRef.current) {
-            videoRef.current.currentTime = time;
-            setCurrentTime(time);
-        }
-    };
+    const TIME_LIMIT = 10 * 60 + 30; // 10分30秒
 
     useEffect(() => {
         const video = videoRef.current;
-        if (video) {
-            video.addEventListener('timeupdate', handleTimeUpdate);
-            video.addEventListener('loadedmetadata', handleLoadedMetadata);
-            
-            return () => {
-                video.removeEventListener('timeupdate', handleTimeUpdate);
-                video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-            };
-        }
+        if (!video) return;
+
+        const handleTimeUpdate = () => {
+            if (video.currentTime >= TIME_LIMIT) {
+                video.pause();
+                video.currentTime = TIME_LIMIT;
+            }
+        };
+
+        const handleSeeking = () => {
+            if (video.currentTime > TIME_LIMIT) {
+                video.currentTime = TIME_LIMIT;
+            }
+        };
+
+        const handlePlay = (e) => {
+            // 只有当前时间超过限制时才阻止播放
+            if (video.currentTime >= TIME_LIMIT) {
+                e.preventDefault();
+                video.pause();
+            }
+        };
+
+        video.addEventListener('timeupdate', handleTimeUpdate);
+        video.addEventListener('seeking', handleSeeking);
+        video.addEventListener('play', handlePlay);
+
+        return () => {
+            video.removeEventListener('timeupdate', handleTimeUpdate);
+            video.removeEventListener('seeking', handleSeeking);
+            video.removeEventListener('play', handlePlay);
+        };
     }, []);
 
     return (
-        <div className="video-player">
-            <video 
-                ref={videoRef}
-                src={src}
-                controls={false}
-            />
-            <Controls 
-                isPlaying={isPlaying}
-                onPlayPause={togglePlayPause}
-            />
-            <ProgressBar 
-                currentTime={currentTime}
-                duration={duration}
-                onSeek={handleSeek}
-            />
-        </div>
+        <video 
+            ref={videoRef}
+            controls 
+            width="100%" 
+            height="400"
+            src={src}
+        />
     );
 };
 
