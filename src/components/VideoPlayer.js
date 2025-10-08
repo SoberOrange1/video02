@@ -1,8 +1,9 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
+
+const TIME_LIMIT = 10 * 60 + 30; // 10分30秒
 
 const VideoPlayer = ({ src }) => {
     const videoRef = useRef(null);
-    const TIME_LIMIT = 10 * 60 + 30; // 10分30秒
 
     useEffect(() => {
         const video = videoRef.current;
